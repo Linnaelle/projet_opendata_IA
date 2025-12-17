@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+build/
+dist/
+wheels/
+*.egg-info
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.venv
+.env
+data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data
+data/raw/
+*.csv
+*.json
+
+# Streamlit
+.streamlit/secrets.toml
