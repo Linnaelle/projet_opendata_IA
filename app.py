@@ -277,7 +277,7 @@ st.markdown("""
     .stSelectbox [data-baseweb="select"] input {
         color: #E5E7EB !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 0 !important; 
         position: relative !important;
         top: 0 !important;
     }
@@ -687,6 +687,32 @@ st.markdown("""
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
     }
 </style>
+
+<script>
+// Ensure selectbox values remain visible after dynamic updates
+(function() {
+    function fixSelectboxes() {
+        const selects = document.querySelectorAll('[data-testid="stSidebar"] [data-baseweb="select"]');
+        selects.forEach(select => {
+            const textDivs = select.querySelectorAll('div, span');
+            textDivs.forEach(el => {
+                if (el.textContent && el.textContent.trim() !== '') {
+                    el.style.color = '#E5E7EB';
+                    el.style.opacity = '1';
+                    el.style.visibility = 'visible';
+                }
+            });
+        });
+    }
+    
+    fixSelectboxes();
+    setTimeout(fixSelectboxes, 100);
+    setTimeout(fixSelectboxes, 500);
+    
+    const observer = new MutationObserver(fixSelectboxes);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 """, unsafe_allow_html=True)
 
 # Initialiser l'API
@@ -738,54 +764,6 @@ selected_provider = st.sidebar.selectbox(
     index=default_index,
     format_func=lambda x: {"openai": "🧠 OpenAI GPT", "gemini": "✨ Google Gemini", "ollama": "🏠 Ollama (local)"}[x]
 )
-
-# Force selectbox text visibility with comprehensive styling and JS
-st.sidebar.markdown("""
-<style>
-    /* CRITICAL: Force selectbox selected value to display */
-    [data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] * {
-        color: #E5E7EB !important;
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-    
-    [data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] div[class*="singleValue"] {
-        color: #E5E7EB !important;
-        font-size: 0.95rem !important;
-        display: block !important;
-    }
-</style>
-
-<script>
-// Ensure selectbox values remain visible after dynamic updates
-(function() {
-    function fixSelectboxes() {
-        const selects = document.querySelectorAll('[data-testid="stSidebar"] [data-baseweb="select"]');
-        selects.forEach(select => {
-            // Ensure all text elements are visible
-            const textDivs = select.querySelectorAll('div, span');
-            textDivs.forEach(el => {
-                if (el.textContent && el.textContent.trim() !== '') {
-                    el.style.color = '#E5E7EB';
-                    el.style.opacity = '1';
-                    el.style.visibility = 'visible';
-                }
-            });
-        });
-    }
-    
-    // Run on load and after delays
-    fixSelectboxes();
-    setTimeout(fixSelectboxes, 100);
-    setTimeout(fixSelectboxes, 500);
-    
-    // Watch for changes
-    const observer = new MutationObserver(fixSelectboxes);
-    observer.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-""", unsafe_allow_html=True)
 
 # Afficher le modèle actif avec design moderne
 model_names = {
