@@ -877,13 +877,30 @@ if page == "🔍 Recherche Produit":
                     st.metric("🏆 Nutri-Score", product_info["nutriscore"])
                     st.metric("🔬 NOVA Group", product_info["nova_group"])
                     
-                    # Bouton ajout comparateur
-                    if st.button("➕ Ajouter au comparateur", use_container_width=True):
-                        if product_info not in st.session_state.comparison_products:
+                    # CALLBACK pour ajouter au comparateur
+                    def add_to_comparator():
+                        """Callback exécuté AVANT le rerun"""
+                        existing_codes = [p.get('code') for p in st.session_state.comparison_products]
+                        
+                        if product_info['code'] not in existing_codes:
                             st.session_state.comparison_products.append(product_info)
-                            st.success("✅ Produit ajouté au comparateur !")
+                            st.session_state.last_action = f"✅ {product_info['name'][:30]} ajouté !"
                         else:
-                            st.warning("⚠️ Produit déjà dans le comparateur")
+                            st.session_state.last_action = "⚠️ Produit déjà dans le comparateur"
+                    
+                    # Bouton avec callback
+                    st.button(
+                        "➕ Ajouter au comparateur", 
+                        key=f"add_{product_info['code']}",
+                        on_click=add_to_comparator
+                    )
+                    
+                    # Afficher le dernier message (persistera après rerun)
+                    if "last_action" in st.session_state and st.session_state.last_action:
+                        st.info(st.session_state.last_action)
+                        # Optionnel : afficher des balloons
+                        if "✅" in st.session_state.last_action:
+                            st.balloons()
                 
                 with col2:
                     # Product title card
