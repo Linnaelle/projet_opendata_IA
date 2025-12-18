@@ -971,7 +971,9 @@ elif page == "⚖️ Comparateur":
     </div>
     """, unsafe_allow_html=True)
     
-    if len(st.session_state.comparison_products) == 0:
+    products = st.session_state.comparison_products
+
+    if len(products) == 0:
         st.markdown("""
         <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); padding: 2rem; border-radius: 16px; border: 2px solid #38BDF8; text-align: center; margin-top: 2rem;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
@@ -980,43 +982,50 @@ elif page == "⚖️ Comparateur":
         </div>
         """, unsafe_allow_html=True)
     else:
-        # Success banner
         st.markdown(f"""
         <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); padding: 1.25rem; border-radius: 12px; border: 2px solid #22C55E40; margin-bottom: 2rem; text-align: center;">
-            <p style="margin: 0; color: #22C55E; font-size: 1.2rem; font-weight: 700;">📦 {len(st.session_state.comparison_products)} produit(s) dans le comparateur</p>
+            <p style="margin: 0; color: #22C55E; font-size: 1.2rem; font-weight: 700;">📦 {len(products)} produit(s) dans le comparateur</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Affichage des produits avec design amélioré
-        cols = st.columns(len(st.session_state.comparison_products))
+        COLS_PER_ROW = 5
         
-        for idx, product in enumerate(st.session_state.comparison_products):
-            with cols[idx]:
-                # Product card
-                st.markdown("""
-                <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.25rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1rem;">
-                """, unsafe_allow_html=True)
-                
-                if product["image_url"]:
-                    st.image(product["image_url"], width=150)
-                else:
-                    st.markdown("""
-                    <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto;">
-                        🍽️
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                st.markdown(f"**{product['name'][:30]}**")
-                st.metric("🏆 Nutri-Score", product["nutriscore"])
-                st.metric("🔬 NOVA", product["nova_group"])
-                
-                if st.button(f"🗑️ Retirer", key=f"remove_{idx}", width=True):
-                    st.session_state.comparison_products.pop(idx)
-                    st.rerun()
-        
-        # Graphique de comparaison avec header stylé
+        for i in range(0, len(products), COLS_PER_ROW):
+            cols = st.columns(COLS_PER_ROW)
+            
+            for j in range(COLS_PER_ROW):
+                if i + j < len(products):
+                    idx = i + j
+                    product = products[idx]
+                    
+                    with cols[j]:
+                        st.markdown("""
+                        <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.25rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1rem; height: 100%;">
+                        """, unsafe_allow_html=True)
+                        
+                        if product["image_url"]:
+                            st.image(product["image_url"], width='stretch') 
+                        else:
+                            st.markdown("""
+                            <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto;">
+                                🍽️
+                            </div>
+                            """, unsafe_allow_html=True)
+                        
+                        st.markdown("</div>", unsafe_allow_html=True)
+                        
+                        st.markdown(f"**{product['name'][:30]}**")
+                        
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            st.metric("🏆 Score", product["nutriscore"])
+                        with c2:
+                            st.metric("🔬 NOVA", product["nova_group"])
+                        
+                        if st.button(f"🗑️ Retirer", key=f"remove_{idx}", width='stretch'):
+                            st.session_state.comparison_products.pop(idx)
+                            st.rerun()
+
         st.markdown("""
         <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
             <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Comparaison Visuelle</h3>
@@ -1025,12 +1034,12 @@ elif page == "⚖️ Comparateur":
         """, unsafe_allow_html=True)
         
         fig = create_comparison_chart(st.session_state.comparison_products)
-        st.plotly_chart(fig, width=True)
+        st.plotly_chart(fig, use_container_width=True)
         
-        # Analyse comparative IA
+        # Analyse comparative IA et Bouton Vider
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🤖 Analyse comparative IA", type="primary", width=True):
+            if st.button("🤖 Analyse comparative IA", type="primary", use_container_width=True):
                 with st.spinner("🧠 Génération de l'analyse..."):
                     comparison_text = "\n".join([
                         f"- {p['name']} (Nutri-Score {p['nutriscore']}, NOVA {p['nova_group']})"
@@ -1046,7 +1055,7 @@ elif page == "⚖️ Comparateur":
                     """, unsafe_allow_html=True)
         
         with col2:
-            if st.button("🗑️ Vider le comparateur", width=True):
+            if st.button("🗑️ Vider le comparateur", use_container_width=True):
                 st.session_state.comparison_products = []
                 st.rerun()
 
