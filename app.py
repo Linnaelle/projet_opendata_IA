@@ -11,10 +11,8 @@ from utils.charts import (
 )
 from utils.chatbot import NutriChatbot
 
-# Charger les variables d'environnement (.env)
 load_dotenv()
 
-# Configuration de la page
 st.set_page_config(
     page_title="🥗 NutriScan",
     page_icon="🥗",
@@ -22,534 +20,491 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS avec la palette de couleurs moderne nutrition
 st.markdown("""
 <style>
-    /* Import modern font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Global styles */
     * {
         font-family: 'Inter', sans-serif;
     }
     
-    /* Main content area */
     .main {
-        background-color: #0F172A !important;
+        background-color: #0F172A;
     }
     
     .block-container {
-        padding-top: 2rem !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
+        padding-top: 2rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
     
-    /* Sidebar styling - WIDER & MORE PROMINENT */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #16213A 0%, #0F172A 100%) !important;
-        min-width: 400px !important;
-        max-width: 400px !important;
-        border-right: 2px solid #243244 !important;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4) !important;
+        background: linear-gradient(180deg, #16213A 0%, #0F172A 100%);
+        min-width: 400px;
+        max-width: 400px;
+        border-right: 2px solid #243244;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
     }
     
     [data-testid="stSidebar"] > div:first-child {
-        background: linear-gradient(180deg, #16213A 0%, #0F172A 100%) !important;
+        background: linear-gradient(180deg, #16213A 0%, #0F172A 100%);
     }
     
-    /* Sidebar text */
     [data-testid="stSidebar"] label {
-        color: #E5E7EB !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
-        margin-bottom: 0.5rem !important;
+        color: #E5E7EB;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
     }
     
     [data-testid="stSidebar"] .stSelectbox label {
-        color: #9CA3AF !important;
-        font-size: 0.75rem !important;
-        font-weight: 700 !important;
+        color: #9CA3AF;
+        font-size: 0.75rem;
+        font-weight: 700;
     }
     
-    /* Headers with gradient accent */
     h1 {
         background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 0.5rem !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.02em !important;
+        margin-bottom: 0.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
     }
     
     h2, h3 {
-        color: #E5E7EB !important;
-        font-weight: 700 !important;
+        color: #E5E7EB;
+        font-weight: 700;
     }
     
     h2 {
-        font-size: 1.75rem !important;
-        margin-top: 2rem !important;
+        font-size: 1.75rem;
+        margin-top: 2rem;
     }
     
-    /* Card-like containers with elevated design */
     [data-testid="stExpander"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 16px !important;
-        margin-bottom: 1.25rem !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 16px;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
     }
     
     [data-testid="stExpander"]:hover {
-        border-color: #22C55E40 !important;
-        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.15) !important;
-        transform: translateY(-2px) !important;
+        border-color: #22C55E40;
+        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.15);
+        transform: translateY(-2px);
     }
     
     [data-testid="stExpander"] summary {
-        color: #E5E7EB !important;
-        font-weight: 600 !important;
-        font-size: 1.05rem !important;
-        padding: 0.5rem 0 !important;
+        color: #E5E7EB;
+        font-weight: 600;
+        font-size: 1.05rem;
+        padding: 0.5rem 0;
     }
     
-    /* Metric cards with enhanced styling */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        padding: 1.25rem !important;
-        border-radius: 12px !important;
-        border: 2px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 2px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
     }
     
     [data-testid="stMetric"]:hover {
-        border-color: #22C55E40 !important;
-        transform: translateY(-2px) !important;
+        border-color: #22C55E40;
+        transform: translateY(-2px);
     }
     
     [data-testid="stMetricValue"] {
-        color: #22C55E !important;
-        font-size: 2.5rem !important;
-        font-weight: 800 !important;
-        text-shadow: 0 2px 8px rgba(34, 197, 94, 0.3) !important;
+        color: #22C55E;
+        font-size: 2.5rem;
+        font-weight: 800;
+        text-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
     }
     
     [data-testid="stMetricLabel"] {
-        color: #9CA3AF !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        font-size: 0.8rem !important;
-        letter-spacing: 0.1em !important;
+        color: #9CA3AF;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
     }
     
-    /* Buttons with modern design */
     .stButton > button {
-        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%) !important;
-        color: #0F172A !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
+        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        color: #0F172A;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     
     .stButton > button:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4) !important;
-        background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+        background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
     }
     
     .stButton > button:active {
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
     }
     
-    /* Primary button specific */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%) !important;
+        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
     }
     
-    /* Secondary buttons */
     .stButton > button[kind="secondary"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        color: #E5E7EB !important;
-        border: 2px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        color: #E5E7EB;
+        border: 2px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
     .stButton > button[kind="secondary"]:hover {
-        border-color: #22C55E !important;
-        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.2) !important;
+        border-color: #22C55E;
+        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.2);
     }
     
-    /* Text input with enhanced focus */
     .stTextInput > div > div > input {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 12px !important;
-        color: #E5E7EB !important;
-        padding: 1rem 1.25rem !important;
-        font-size: 1.05rem !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 12px;
+        color: #E5E7EB;
+        padding: 1rem 1.25rem;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
     
     .stTextInput > div > div > input:focus {
-        border-color: #22C55E !important;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15), 0 4px 12px rgba(34, 197, 94, 0.2) !important;
-        background: #1E293B !important;
+        border-color: #22C55E;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15), 0 4px 12px rgba(34, 197, 94, 0.2);
+        background: #1E293B;
     }
     
     .stTextInput > div > div > input::placeholder {
-        color: #6B7280 !important;
-        font-style: italic !important;
+        color: #6B7280;
+        font-style: italic;
     }
     
-    /* Select boxes with modern styling */
     .stSelectbox > div > div {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 12px;
+        transition: all 0.3s ease;
     }
     
-    /* Main select control - proper alignment */
     .stSelectbox [data-baseweb="select"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 12px !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 12px;
     }
     
-    /* Control wrapper - THE MAIN CONTAINER */
     .stSelectbox [data-baseweb="select"] > div:first-child {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        min-height: auto !important;
-        height: auto !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        color: #E5E7EB !important;
+        background: transparent;
+        border: none;
+        padding: 0;
+        min-height: auto;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        color: #E5E7EB;
     }
     
-    /* Selectbox value container - proper alignment with padding */
     .stSelectbox [data-baseweb="select"] div[class*="ValueContainer"] {
-        display: flex !important;
-        align-items: center !important;
-        color: #E5E7EB !important;
-        flex: 1 !important;
+        display: flex;
+        align-items: center;
+        color: #E5E7EB;
+        flex: 1;
     }
     
-    /* Selected value text - centered within container */
     .stSelectbox [data-baseweb="select"] div[class*="SingleValue"],
     .stSelectbox [data-baseweb="select"] div[class*="singleValue"] {
-        color: #E5E7EB !important;
-        font-weight: 500 !important;
-        font-size: 0.95rem !important;
-        line-height: 1.5 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: relative !important;
-        top: 0 !important;
+        color: #E5E7EB;
+        font-weight: 500;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 0;
     }
     
-    /* Input container alignment */
     .stSelectbox [data-baseweb="select"] div[class*="Input"] {
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        position: relative !important;
-        top: 0 !important;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        position: relative;
+        top: 0;
     }
     
     .stSelectbox [data-baseweb="select"] input {
-        color: #E5E7EB !important;
-        margin: 0 !important;
-        padding: 0 !important; 
-        position: relative !important;
-        top: 0 !important;
+        color: #E5E7EB;
+        margin: 0;
+        padding: 0; 
+        position: relative;
+        top: 0;
     }
     
-    /* Indicators container (arrow) - centered with padding */
     .stSelectbox [data-baseweb="select"] div[class*="IndicatorsContainer"] {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0.85rem 1rem 0.85rem 0.5rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.85rem 1rem 0.85rem 0.5rem;
     }
     
-    /* Individual indicator (arrow icon) */
     .stSelectbox [data-baseweb="select"] div[class*="IndicatorsContainer"] > div {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        position: relative !important;
-        top: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        top: 0;
     }
     
-    /* Force text color on all selectbox internal elements */
     .stSelectbox * {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
-    /* Target Streamlit's specific selectbox value container */
     [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
-    /* Target the actual text div inside select */
     [data-testid="stSelectbox"] [data-baseweb="select"] > div > div > div {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
-    /* Ensure placeholder and selected value are visible */
     [data-testid="stSelectbox"] input {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
-    /* Sidebar selectbox specific - very aggressive */
     [data-testid="stSidebar"] .stSelectbox * {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
     [data-testid="stSidebar"] [data-baseweb="select"] {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
-    /* Target the inner value display */
     [data-testid="stSidebar"] [data-baseweb="select"] div[class*="singleValue"] {
-        color: #E5E7EB !important;
+        color: #E5E7EB;
     }
     
     [data-testid="stSidebar"] [data-baseweb="select"] div[class*="placeholder"] {
-        color: #9CA3AF !important;
+        color: #9CA3AF;
     }
     
-    /* Prevent text clipping */
     .stSelectbox [data-baseweb="select"],
     .stSelectbox [data-baseweb="select"] > div {
-        overflow: visible !important;
+        overflow: visible;
     }
     
     .stSelectbox [data-baseweb="select"] div[class*="ValueContainer"] {
-        overflow: visible !important;
-        flex-wrap: nowrap !important;
+        overflow: visible;
+        flex-wrap: nowrap;
     }
     
-    /* Text content styling */
     .stSelectbox [data-baseweb="select"] span,
     .stSelectbox [data-baseweb="select"] div[class*="singleValue"] {
-        white-space: nowrap !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        color: #E5E7EB !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: relative !important;
-        top: 0 !important;
-        transform: none !important;
+        white-space: nowrap;
+        opacity: 1;
+        visibility: visible;
+        color: #E5E7EB;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 0;
+        transform: none;
     }
     
-    /* Let inner text elements flow naturally */
     .stSelectbox [data-baseweb="select"] div[class*="ValueContainer"] > div {
-        display: flex !important;
-        align-items: center !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: relative !important;
-        top: 0 !important;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 0;
     }
     
-    /* Ensure the control wrapper has the right structure */
     .stSelectbox [data-baseweb="select"] > div:first-child {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: stretch !important;
-        justify-content: space-between !important;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
     }
     
-    /* Selectbox dropdown arrow - properly sized and centered */
     .stSelectbox [data-baseweb="select"] svg {
-        fill: #E5E7EB !important;
-        width: 30px !important;
-        height: 30px !important;
-        display: block !important;
-        vertical-align: middle !important;
-        margin: 0 !important;
-        position: relative !important;
-        top: 0 !important;
-        transform: none !important;
+        fill: #E5E7EB;
+        width: 30px;
+        height: 30px;
+        display: block;
+        vertical-align: middle;
+        margin: 0;
+        position: relative;
+        top: 0;
+        transform: none;
     }
     
     .stSelectbox [data-baseweb="select"]:hover > div {
-        border-color: #22C55E !important;
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+        border-color: #22C55E;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
     }
     
     .stSelectbox [data-baseweb="select"]:focus-within > div {
-        border-color: #22C55E !important;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15) !important;
+        border-color: #22C55E;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
     }
     
-    /* Selectbox dropdown menu */
     [data-baseweb="popover"] {
-        background: #1E293B !important;
-        border: 2px solid #243244 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+        background: #1E293B;
+        border: 2px solid #243244;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
     
-    /* Selectbox dropdown options */
     [data-baseweb="menu"] {
-        background: #1E293B !important;
+        background: #1E293B;
     }
     
     [role="option"] {
-        background: #1E293B !important;
-        color: #E5E7EB !important;
-        padding: 0.75rem 1rem !important;
-        transition: all 0.2s ease !important;
+        background: #1E293B;
+        color: #E5E7EB;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
     }
     
     [role="option"]:hover {
-        background: linear-gradient(135deg, #243244 0%, #1E293B 100%) !important;
-        color: #22C55E !important;
+        background: linear-gradient(135deg, #243244 0%, #1E293B 100%);
+        color: #22C55E;
     }
     
     [role="option"][aria-selected="true"] {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, #1E293B 100%) !important;
-        color: #22C55E !important;
-        font-weight: 600 !important;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, #1E293B 100%);
+        color: #22C55E;
+        font-weight: 600;
     }
     
-    /* Info/Success/Warning/Error boxes */
     .stAlert {
-        border-radius: 12px !important;
-        border-left-width: 4px !important;
+        border-radius: 12px;
+        border-left-width: 4px;
     }
     
     .stSuccess {
-        background-color: rgba(34, 197, 94, 0.1) !important;
-        border-left-color: #22C55E !important;
-        color: #22C55E !important;
+        background-color: rgba(34, 197, 94, 0.1);
+        border-left-color: #22C55E;
+        color: #22C55E;
     }
     
     .stInfo {
-        background-color: rgba(56, 189, 248, 0.1) !important;
-        border-left-color: #38BDF8 !important;
-        color: #38BDF8 !important;
+        background-color: rgba(56, 189, 248, 0.1);
+        border-left-color: #38BDF8;
+        color: #38BDF8;
     }
     
     .stWarning {
-        background-color: rgba(245, 158, 11, 0.1) !important;
-        border-left-color: #F59E0B !important;
-        color: #F59E0B !important;
+        background-color: rgba(245, 158, 11, 0.1);
+        border-left-color: #F59E0B;
+        color: #F59E0B;
     }
     
     .stError {
-        background-color: rgba(239, 68, 68, 0.1) !important;
-        border-left-color: #EF4444 !important;
-        color: #EF4444 !important;
+        background-color: rgba(239, 68, 68, 0.1);
+        border-left-color: #EF4444;
+        color: #EF4444;
     }
     
-    /* Chat messages with modern design */
     [data-testid="stChatMessage"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border-radius: 16px !important;
-        padding: 1.25rem !important;
-        margin-bottom: 1rem !important;
-        border: 2px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 2px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
     }
     
     [data-testid="stChatMessage"]:hover {
-        transform: translateX(4px) !important;
+        transform: translateX(4px);
     }
     
     [data-testid="stChatMessage"][data-testid*="user"] {
-        background: linear-gradient(135deg, #1E293B 0%, #243244 100%) !important;
-        border-left: 4px solid #F59E0B !important;
+        background: linear-gradient(135deg, #1E293B 0%, #243244 100%);
+        border-left: 4px solid #F59E0B;
     }
     
     [data-testid="stChatMessage"][data-testid*="assistant"] {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, #1E293B 100%) !important;
-        border-left: 4px solid #22C55E !important;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, #1E293B 100%);
+        border-left: 4px solid #22C55E;
     }
     
-    /* Chat input with nutrition theme */
     .stChatInput > div > div > div > div > input {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 24px !important;
-        color: #E5E7EB !important;
-        padding: 1rem 1.5rem !important;
-        font-size: 1rem !important;
-        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 24px;
+        color: #E5E7EB;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
     
     .stChatInput > div > div > div > div > input:focus {
-        border-color: #22C55E !important;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15), 0 4px 16px rgba(34, 197, 94, 0.2) !important;
+        border-color: #22C55E;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15), 0 4px 16px rgba(34, 197, 94, 0.2);
     }
     
     .stChatInput > div > div > div > div > input::placeholder {
-        color: #6B7280 !important;
+        color: #6B7280;
     }
     
-    /* Spinner */
     .stSpinner > div {
-        border-top-color: #22C55E !important;
+        border-top-color: #22C55E;
     }
     
-    /* Divider */
     hr {
-        border-color: #243244 !important;
+        border-color: #243244;
     }
     
-    /* Secondary text */
     .css-10trblm {
-        color: #9CA3AF !important;
+        color: #9CA3AF;
     }
     
-    /* Plotly charts with elevated design */
     .js-plotly-plot {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border-radius: 16px !important;
-        border: 2px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        padding: 0.5rem !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border-radius: 16px;
+        border: 2px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        padding: 0.5rem;
     }
     
-    /* Images with nutrition theme border */
     img {
-        border-radius: 16px !important;
-        border: 3px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
+        border-radius: 16px;
+        border: 3px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
     }
     
     img:hover {
-        border-color: #22C55E40 !important;
-        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2) !important;
-        transform: scale(1.02) !important;
+        border-color: #22C55E40;
+        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.2);
+        transform: scale(1.02);
     }
     
-    /* Nutrition badge styling - enhanced */
     .nutrition-badge {
         display: inline-block;
         padding: 0.5rem 1rem;
@@ -586,7 +541,6 @@ st.markdown("""
         border: 2px solid #EF444440;
     }
     
-    /* App header styling - hero section */
     .app-header {
         background: linear-gradient(135deg, #16213A 0%, #1E293B 50%, #16213A 100%);
         padding: 3rem 2.5rem;
@@ -608,11 +562,9 @@ st.markdown("""
         background: linear-gradient(90deg, #22C55E 0%, #F59E0B 50%, #22C55E 100%);
     }
     
-    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* Scrollbar styling */
     ::-webkit-scrollbar {
         width: 12px;
         height: 12px;
@@ -633,25 +585,21 @@ st.markdown("""
         background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
     }
     
-    /* Column styling */
     [data-testid="column"] {
-        padding: 0.5rem !important;
+        padding: 0.5rem;
     }
     
-    /* Dataframe styling */
     [data-testid="stDataFrame"] {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border-radius: 16px !important;
-        border: 2px solid #243244 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border-radius: 16px;
+        border: 2px solid #243244;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
-    /* Progress bars */
     .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #22C55E 0%, #16A34A 100%) !important;
+        background: linear-gradient(90deg, #22C55E 0%, #16A34A 100%);
     }
     
-    /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.5rem;
         background: #16213A;
@@ -674,17 +622,16 @@ st.markdown("""
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%) !important;
-        color: #0F172A !important;
-        border-color: #22C55E !important;
+        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        color: #0F172A;
+        border-color: #22C55E;
     }
     
-    /* Toast notifications */
     .stToast {
-        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%) !important;
-        border: 2px solid #243244 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+        background: linear-gradient(135deg, #1E293B 0%, #16213A 100%);
+        border: 2px solid #243244;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 </style>
 
@@ -809,6 +756,39 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+def clean_product_data(raw_product):
+    raw_nutriments = raw_product.get("nutriments", {})
+    nutriscore = raw_product.get("nutriscore", "")
+
+    if isinstance(nutriscore, dict):
+        data = nutriscore.get("2023") or nutriscore.get("2021") or {}
+        nutriscore = data.get("grade", "").upper()
+    else:
+        nutriscore = str(nutriscore).upper()
+
+    return {
+        "code": raw_product.get("code"),
+        "name": raw_product.get("product_name", "Inconnu"),
+        "brands": raw_product.get("brands", "Inconnue"),
+        "nutriscore": nutriscore,
+        "nova_group": raw_product.get("nova_group"),
+        "ingredients": raw_product.get("ingredients_text"),
+        "allergens": raw_product.get("allergens", ""),
+        "categories": raw_product.get("categories", ""),
+        "image_url": raw_product.get("image_url"),
+        "nutriments": {
+            "calories": raw_nutriments.get("energy-kcal_100g"),
+            "matg": raw_nutriments.get("fat_100g"),
+            "satures": raw_nutriments.get("saturated-fat_100g"),
+            "sucres": raw_nutriments.get("sugars_100g"),
+            "sel": raw_nutriments.get("salt_100g"),
+            "proteines": raw_nutriments.get("proteins_100g"),
+            "glucides": raw_nutriments.get("carbohydrates_100g"),
+            "fibres": raw_nutriments.get("fiber_100g"),
+            "sodium": raw_nutriments.get("sodium_100g"),
+        }
+    }
+
 # ===== PAGE 1: RECHERCHE PRODUIT =====
 if page == "🔍 Recherche Produit":
     # Page header with modern design
@@ -830,22 +810,24 @@ if page == "🔍 Recherche Produit":
     with col2:
         search_button = st.button("🔍 Rechercher", type="primary")
     
+    # --- RECHERCHE ---
     if search_button and search_query:
         with st.spinner("Recherche en cours..."):
-            # Recherche par code-barres ou nom
             if search_query.isdigit() and len(search_query) >= 8:
                 product = api.get_product(search_query)
                 products = [product] if product else []
             else:
-                products = api.search_products(search_query, page_size=10)
+                products = api.search_products(search_query, page_size=15)
+
+            clean_results = [clean_product_data(p) for p in products]
         
-        if products:
+        if clean_results:
             st.success(f"✅ {len(products)} produit(s) trouvé(s)")
             
             # Sélection du produit
             product_names = [
-                f"{p.get('product_name', 'Sans nom')} - {p.get('brands', 'Sans marque')}"
-                for p in products
+                f"{p.get('name', 'Sans nom')} - {p.get('brands', 'Sans marque')}"
+                for p in clean_results
             ]
             selected_idx = st.selectbox("Sélectionnez un produit:", range(len(product_names)), format_func=lambda x: product_names[x])
             
@@ -921,7 +903,7 @@ if page == "🔍 Recherche Produit":
                     with st.expander("📋 Informations détaillées"):
                         st.write("**Catégories:**", product_info["categories"])
                         st.write("**Allergènes:**", product_info["allergens"])
-                        st.write("**Ingrédients:**", product_info["ingredients"][:500] + "...")
+                        st.write("**Ingrédients:**", product_info["ingredients"])
                 
                 # Visualisations with styled header
                 st.markdown("""
@@ -935,12 +917,12 @@ if page == "🔍 Recherche Produit":
                 
                 with col1:
                     fig_gauge = create_nutriscore_gauge(product_info["nutriscore"])
-                    st.plotly_chart(fig_gauge, width==True)
+                    st.plotly_chart(fig_gauge, width='stretch')
                 
                 with col2:
                     if product_info["nutriments"]:
                         fig_pie = create_nutriments_pie(product_info["nutriments"])
-                        st.plotly_chart(fig_pie, width=True)
+                        st.plotly_chart(fig_pie, width='stretch')
                 
                 # Alternatives with styled header
                 st.markdown("""
