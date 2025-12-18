@@ -1,13 +1,37 @@
 import os
+from typing import Dict, List, Literal, Tuple
+
 from litellm import completion
-from typing import List, Dict
+
+
+Provider = Literal["openai", "gemini", "ollama"]
+
 
 class NutriChatbot:
-    """Chatbot nutrition avec LiteLLM"""
-    
-    def __init__(self, model: str = "gpt-4o-mini"):
-        self.model = model
+    """Chatbot nutrition avec LiteLLM (OpenAI, Gemini ou Ollama)."""
+
+    def __init__(
+        self,
+        provider: Provider | None = None,
+        model: str | None = None,
+    ):
+        # Provider/model configurables via arguments ou variables d'env
+        self.provider: Provider = (provider or os.getenv("NUTRISCAN_PROVIDER", "openai")).lower()  # type: ignore[assignment]
+        self.model, self._kwargs = self._resolve_model_and_kwargs(model)
         self.conversation_history: List[Dict] = []
+
+    def _resolve_model_and_kwargs(self, model: str | None) -> Tuple[str, Dict]:
+        """Choisit le modèle et les paramètres LiteLLM en fonction du provider."""
+        if self.provider == "gemini":
+            resolved = model or os.getenv("NUTRISCAN_MODEL_GEMINI", "gemini/gemini-2.0-flash-exp")
+            return resolved, {}
+        if self.provider == "ollama":
+            resolved = model or os.getenv("NUTRISCAN_MODEL_OLLAMA", "ollama/mistral")
+            api_base = os.getenv("OLLAMA_API_BASE", "http://localhost:11434")
+            return resolved, {"api_base": api_base}
+        # default: openai
+        resolved = model or os.getenv("NUTRISCAN_MODEL_OPENAI", "gpt-4o-mini")
+        return resolved, {}
     
     def analyze_product(self, product_info: Dict) -> str:
         """Génère une analyse IA d'un produit"""
@@ -31,7 +55,8 @@ Reste concis et pédagogue.
             response = completion(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7
+                temperature=0.7,
+                **self._kwargs,
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -57,7 +82,8 @@ Explique en 2-3 phrases pourquoi ces alternatives sont meilleures et ce qui les 
             response = completion(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7
+                temperature=0.7,
+                **self._kwargs,
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -74,10 +100,14 @@ Explique en 2-3 phrases pourquoi ces alternatives sont meilleures et ce qui les 
             response = completion(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "Tu es un assistant nutrition bienveillant et pédagogue."},
-                    *self.conversation_history
+                    {
+                        "role": "system",
+                        "content": "Tu es un assistant nutrition bienveillant et pédagogue.",
+                    },
+                    *self.conversation_history,
                 ],
-                temperature=0.8
+                temperature=0.8,
+                **self._kwargs,
             )
             
             assistant_message = response.choices[0].message.content
