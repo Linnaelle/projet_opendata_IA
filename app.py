@@ -935,12 +935,12 @@ if page == "🔍 Recherche Produit":
                 
                 with col1:
                     fig_gauge = create_nutriscore_gauge(product_info["nutriscore"])
-                    st.plotly_chart(fig_gauge, use_container_width=True)
+                    st.plotly_chart(fig_gauge, width==True)
                 
                 with col2:
                     if product_info["nutriments"]:
                         fig_pie = create_nutriments_pie(product_info["nutriments"])
-                        st.plotly_chart(fig_pie, use_container_width=True)
+                        st.plotly_chart(fig_pie, width=True)
                 
                 # Alternatives with styled header
                 st.markdown("""
@@ -1030,7 +1030,7 @@ elif page == "⚖️ Comparateur":
                 st.metric("🏆 Nutri-Score", product["nutriscore"])
                 st.metric("🔬 NOVA", product["nova_group"])
                 
-                if st.button(f"🗑️ Retirer", key=f"remove_{idx}", use_container_width=True):
+                if st.button(f"🗑️ Retirer", key=f"remove_{idx}", width=True):
                     st.session_state.comparison_products.pop(idx)
                     st.rerun()
         
@@ -1043,12 +1043,12 @@ elif page == "⚖️ Comparateur":
         """, unsafe_allow_html=True)
         
         fig = create_comparison_chart(st.session_state.comparison_products)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width=True)
         
         # Analyse comparative IA
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🤖 Analyse comparative IA", type="primary", use_container_width=True):
+            if st.button("🤖 Analyse comparative IA", type="primary", width=True):
                 with st.spinner("🧠 Génération de l'analyse..."):
                     comparison_text = "\n".join([
                         f"- {p['name']} (Nutri-Score {p['nutriscore']}, NOVA {p['nova_group']})"
@@ -1064,7 +1064,7 @@ elif page == "⚖️ Comparateur":
                     """, unsafe_allow_html=True)
         
         with col2:
-            if st.button("🗑️ Vider le comparateur", use_container_width=True):
+            if st.button("🗑️ Vider le comparateur", width=True):
                 st.session_state.comparison_products = []
                 st.rerun()
 
@@ -1119,7 +1119,7 @@ elif page == "💬 Chatbot Nutrition":
     ]
     
     for emoji, suggestion in suggestions:
-        if st.sidebar.button(f"{emoji} {suggestion}", use_container_width=True):
+        if st.sidebar.button(f"{emoji} {suggestion}", width=True):
             st.session_state.chat_history.append({"role": "user", "content": suggestion})
             with st.spinner("Réflexion..."):
                 response = st.session_state.chatbot.chat(suggestion)
