@@ -749,39 +749,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-def clean_product_data(raw_product):
-    raw_nutriments = raw_product.get("nutriments", {})
-    nutriscore = raw_product.get("nutriscore", "")
-
-    if isinstance(nutriscore, dict):
-        data = nutriscore.get("2023") or nutriscore.get("2021") or {}
-        nutriscore = data.get("grade", "").upper()
-    else:
-        nutriscore = str(nutriscore).upper()
-
-    return {
-        "code": raw_product.get("code"),
-        "name": raw_product.get("product_name", "Inconnu"),
-        "brands": raw_product.get("brands", "Inconnue"),
-        "nutriscore": nutriscore,
-        "nova_group": raw_product.get("nova_group"),
-        "ingredients": raw_product.get("ingredients_text"),
-        "allergens": raw_product.get("allergens", ""),
-        "categories": raw_product.get("categories", ""),
-        "image_url": raw_product.get("image_url"),
-        "nutriments": {
-            "calories": raw_nutriments.get("energy-kcal_100g"),
-            "matg": raw_nutriments.get("fat_100g"),
-            "satures": raw_nutriments.get("saturated-fat_100g"),
-            "sucres": raw_nutriments.get("sugars_100g"),
-            "sel": raw_nutriments.get("salt_100g"),
-            "proteines": raw_nutriments.get("proteins_100g"),
-            "glucides": raw_nutriments.get("carbohydrates_100g"),
-            "fibres": raw_nutriments.get("fiber_100g"),
-            "sodium": raw_nutriments.get("sodium_100g"),
-        }
-    }
-
 # ===== PAGE 1: RECHERCHE PRODUIT =====
 if page == "🔍 Recherche Produit":
     st.markdown("""
@@ -806,133 +773,133 @@ if page == "🔍 Recherche Produit":
     if search_button and search_query:
         with st.spinner("Recherche en cours..."):
             if search_query.isdigit() and len(search_query) >= 8:
-                product = api.get_product(search_query)
-                products = [product] if product else []
+                products = api.get_product(search_query)
             else:
                 products = api.search_products(search_query, page_size=15)
 
-            clean_results = [clean_product_data(p) for p in products]
+            st.session_state.search_results = [api.extract_product_info(p) for p in products]
+    
+    # --- AFFICHAGE RÉSULTATS ---
+    if "search_results" in st.session_state:
+        products = st.session_state.search_results
+        print(f"Recherche terminée. Résultats: {len(products)}")
+        st.success(f"✅ {len(products)} produit(s) trouvé(s)")
         
-        if clean_results:
-            st.success(f"✅ {len(products)} produit(s) trouvé(s)")
+        product_names = [
+            f"{p.get('product_name', 'Sans nom')} - {p.get('brands', 'Sans marque')}" for p in st.session_state.search_results
+        ]
+
+        selected_idx = st.selectbox("Sélectionnez un produit:", range(len(product_names)), format_func=lambda x: product_names[x])
+        
+        if selected_idx is not None:
+            selected_product = products[selected_idx]
+            product_info = api.extract_product_info(selected_product)
             
-            product_names = [
-                f"{p.get('name', 'Sans nom')} - {p.get('brands', 'Sans marque')}"
-                for p in clean_results
-            ]
-            selected_idx = st.selectbox("Sélectionnez un produit:", range(len(product_names)), format_func=lambda x: product_names[x])
+            col1, col2 = st.columns([1, 2])
             
-            if selected_idx is not None:
-                selected_product = products[selected_idx]
-                product_info = api.extract_product_info(selected_product)
-                
-                col1, col2 = st.columns([1, 2])
-                
-                with col1:
-                    if product_info["image_url"]:
-                        st.image(product_info["image_url"], width=250)
-                    else:
-                        st.markdown("""
+            with col1:
+                if product_info["image_url"]:
+                    st.image(product_info["image_url"], width=250)
+                else:
+                    st.markdown("""
 <div style="width: 250px; height: 250px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
     🍽️
 </div>
-                        """, unsafe_allow_html=True)
-                    
-                    st.markdown("</div>", unsafe_allow_html=True)
-                    
-                    st.metric("🏆 Nutri-Score", product_info["nutriscore"])
-                    st.metric("🔬 NOVA Group", product_info["nova_group"])
-                    
-                    def add_to_comparator():
-                        """Callback exécuté AVANT le rerun"""
-                        existing_codes = [p.get('code') for p in st.session_state.comparison_products]
-                        
-                        if product_info['code'] not in existing_codes:
-                            st.session_state.comparison_products.append(product_info)
-                            st.session_state.last_action = f"✅ {product_info['name'][:30]} ajouté !"
-                        else:
-                            st.session_state.last_action = "⚠️ Produit déjà dans le comparateur"
-                    
-                    st.button(
-                        "➕ Ajouter au comparateur", 
-                        key=f"add_{product_info['code']}",
-                        on_click=add_to_comparator
-                    )
-                    
-                    if "last_action" in st.session_state and st.session_state.last_action:
-                        st.info(st.session_state.last_action)
-                        if "✅" in st.session_state.last_action:
-                            st.balloons()
+                    """, unsafe_allow_html=True)
                 
-                with col2:
-                    st.markdown(f"""
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                st.metric("🏆 Nutri-Score", product_info["nutriscore_grade"])
+                st.metric("🔬 NOVA Group", product_info["nova_group"])
+                
+                def add_to_comparator():
+                    existing_codes = [p.get('code') for p in st.session_state.comparison_products]
+                    
+                    if product_info['code'] not in existing_codes:
+                        st.session_state.comparison_products.append(product_info)
+                        st.session_state.last_action = f"✅ {product_info['product_name'][:30]} ajouté !"
+                    else:
+                        st.session_state.last_action = "⚠️ Produit déjà dans le comparateur"
+                
+                st.button(
+                    "➕ Ajouter au comparateur", 
+                    key=f"add_{product_info['code']}",
+                    on_click=add_to_comparator
+                )
+            
+            with col2:
+                st.markdown(f"""
 <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1.5rem;">
-    <h3 style="margin: 0 0 0.5rem 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">{product_info['name']}</h3>
+    <h3 style="margin: 0 0 0.5rem 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">{product_info['product_name']}</h3>
     <p style="margin: 0; color: #9CA3AF; font-size: 0.95rem;">🏷️ <strong>Marque:</strong> {product_info['brands']}</p>
 </div>
-                    """, unsafe_allow_html=True)
-                    
-                    with st.expander("🤖 Analyse IA", expanded=True):
+                """, unsafe_allow_html=True)
+
+                api_key_ok = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or (st.session_state.provider == "ollama")
+
+                with st.expander("🤖 Analyse IA", expanded=True):
+                    if not api_key_ok:
+                        st.warning("⚠️ Clé API manquante ou invalide pour le fournisseur sélectionné.")
+                    else:
                         with st.spinner("Génération de l'analyse..."):
                             analysis = st.session_state.chatbot.analyze_product(product_info)
                             st.markdown(analysis)
-                    
-                    with st.expander("📋 Informations détaillées"):
-                        st.write("**Catégories:**", product_info["categories"])
-                        st.write("**Allergènes:**", product_info["allergens"])
-                        st.write("**Ingrédients:**", product_info["ingredients"])
                 
-                st.markdown("""
+                with st.expander("📋 Informations détaillées"):
+                    st.write("**Catégories:**", product_info["categories"])
+                    st.write("**Allergènes:**", product_info["allergens"])
+                    st.write("**Ingrédients:**", product_info["ingredients"])
+            
+            st.markdown("""
 <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
     <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Visualisations Nutritionnelles</h3>
     <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Analyse graphique des valeurs nutritionnelles</p>
 </div>
-                """, unsafe_allow_html=True)
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    fig_gauge = create_nutriscore_gauge(product_info["nutriscore"])
-                    st.plotly_chart(fig_gauge, width='stretch')
-                
-                with col2:
-                    if product_info["nutriments"]:
-                        fig_pie = create_nutriments_pie(product_info["nutriments"])
-                        st.plotly_chart(fig_pie, width='stretch')
-                
-                st.markdown("""
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                fig_gauge = create_nutriscore_gauge(product_info["nutriscore_grade"])
+                st.plotly_chart(fig_gauge, width='stretch')
+            
+            with col2:
+                if product_info["nutriments"]:
+                    fig_pie = create_nutriments_pie(product_info["nutriments"])
+                    st.plotly_chart(fig_pie, width='stretch')
+            
+            st.markdown("""
 <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #F59E0B; margin: 2rem 0 1.5rem 0;">
     <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">🔄 Alternatives Recommandées</h3>
     <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Découvrez des options plus saines</p>
 </div>
-                """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+            
+            with st.spinner("🔍 Recherche d'alternatives..."):
+                category = product_info["categories"].split(",")[0] if product_info["categories"] else product_info["product_name"].split()[0]
+                alternatives = api.search_products(category, page_size=5)
                 
-                with st.spinner("🔍 Recherche d'alternatives..."):
-                    category = product_info["categories"].split(",")[0] if product_info["categories"] else product_info["name"].split()[0]
-                    alternatives = api.search_products(category, page_size=5)
+                alternatives = [
+                    api.extract_product_info(alt) for alt in alternatives
+                    if alt.get("nutriscore_grade", "Z") < product_info["nutriscore_grade"]
+                ][:3]
+                
+                if alternatives:
+                    suggestion_text = st.session_state.chatbot.suggest_alternatives(
+                        product_info, alternatives
+                    )
+                    st.info(suggestion_text)
                     
-                    alternatives = [
-                        api.extract_product_info(alt) for alt in alternatives
-                        if alt.get("nutriscore_grade", "Z") < product_info["nutriscore"]
-                    ][:3]
-                    
-                    if alternatives:
-                        suggestion_text = st.session_state.chatbot.suggest_alternatives(
-                            product_info, alternatives
-                        )
-                        st.info(suggestion_text)
-                        
-                        cols = st.columns(len(alternatives))
-                        for idx, alt in enumerate(alternatives):
-                            with cols[idx]:
-                                st.image(alt["image_url"] if alt["image_url"] else "https://via.placeholder.com/150", width=150)
-                                st.write(f"**{alt['name'][:30]}**")
-                                st.write(f"Nutri-Score: **{alt['nutriscore']}**")
-                    else:
-                        st.warning("Aucune alternative trouvée avec un meilleur Nutri-Score")
-        
-        else:
-            st.error("❌ Aucun produit trouvé")
+                    cols = st.columns(len(alternatives))
+                    for idx, alt in enumerate(alternatives):
+                        with cols[idx]:
+                            st.image(alt["image_url"] if alt["image_url"] else "https://via.placeholder.com/150", width=150)
+                            st.write(f"**{alt['product_name'][:30]}**")
+                            st.write(f"Nutri-Score: **{alt['nutriscore_grade']}**")
+                else:
+                    st.warning("Aucune alternative trouvée avec un meilleur Nutri-Score")
+    else:
+        st.info("🔍 Utilisez la barre de recherche ci-dessus pour trouver des produits alimentaires et analyser leurs informations nutritionnelles.")
 
 # ===== PAGE 2: COMPARATEUR =====
 elif page == "⚖️ Comparateur":
@@ -988,14 +955,14 @@ elif page == "⚖️ Comparateur":
         <img src="{img_src}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
     </div>
     <div style="width: 100%; text-align: left; margin-bottom: 0.5rem;">
-        <strong style="color: #E5E7EB; font-size: 1.1em;">{product['name'][:40]}...</strong>
+        <strong style="color: #E5E7EB; font-size: 1.1em;">{product['product_name'][:40]}...</strong>
     </div>
 </div>
                         """, unsafe_allow_html=True)
                         
                         c1, c2 = st.columns(2)
                         with c1:
-                            st.metric("🏆 Score", product["nutriscore"])
+                            st.metric("🏆 Score", product["nutriscore_grade"])
                         with c2:
                             st.metric("🔬 NOVA", product["nova_group"])
                         
@@ -1018,7 +985,7 @@ elif page == "⚖️ Comparateur":
             if st.button("🤖 Analyse comparative IA", type="primary", width='stretch'):
                 with st.spinner("🧠 Génération de l'analyse..."):
                     comparison_text = "\n".join([
-                        f"- {p['name']} (Nutri-Score {p['nutriscore']}, NOVA {p['nova_group']})"
+                        f"- {p['product_name']} (Nutri-Score {p['nutriscore_grade']}, NOVA {p['nova_group']})"
                         for p in st.session_state.comparison_products
                     ])
                     

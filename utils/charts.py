@@ -130,8 +130,8 @@ def create_nutriments_pie(nutriments: Dict) -> go.Figure:
 
 def create_comparison_chart(products: list) -> go.Figure:
     """Compare plusieurs produits avec thème sombre"""
-    names = [p["name"][:30] for p in products]
-    nutriscores = [p["nutriscore"] for p in products]
+    names = [p["product_name"][:30] for p in products]
+    nutriscores = [p["nutriscore_grade"] for p in products]
     scores = [NUTRISCORE_MAP.get(score, 0) for score in nutriscores]
     colors = [NUTRISCORE_COLORS.get(score, COLORS['text_secondary']) for score in nutriscores]
 

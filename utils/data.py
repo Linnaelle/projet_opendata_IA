@@ -48,15 +48,22 @@ class OpenFoodFactsAPI:
     @staticmethod
     def extract_product_info(product: Dict) -> Dict:
         """Extrait les infos clés d'un produit"""
+        raw_ns = product.get("nutriscore_grade")
+
+        if not raw_ns and isinstance(product.get("nutriscore"), dict):
+            raw_ns = product.get("nutriscore", {}).get("grade")
+        
+        nutriscore = str(raw_ns).upper() if raw_ns else "N/A"
+
         return {
-            "name": product.get("product_name", "Produit sans nom"),
-            "brands": product.get("brands", "Marque inconnue"),
-            "nutriscore": product.get("nutriscore_grade", "N/A").upper(),
-            "nova_group": product.get("nova_group", "N/A"),
+            "code": product.get("code", ""),
+            "product_name": product.get("product_name") or "Nom inconnu",
+            "brands": product.get("brands") or "Marque inconnue",
+            "nutriscore_grade": nutriscore,
+            "nova_group": product.get("nova_group") or "N/A",
             "image_url": product.get("image_url", ""),
-            "ingredients": product.get("ingredients_text", "Non disponible"),
-            "allergens": product.get("allergens", "Non spécifié"),
+            "ingredients": str(product.get("ingredients", "")),
+            "allergens": product.get("allergens") or "Aucun ou non spécifié",
             "nutriments": product.get("nutriments", {}),
             "categories": product.get("categories", ""),
-            "code": product.get("code", ""),
         }
