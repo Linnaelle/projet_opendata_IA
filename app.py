@@ -662,10 +662,8 @@ st.markdown("""
 </script>
 """, unsafe_allow_html=True)
 
-# Initialiser l'API
 api = OpenFoodFactsAPI()
 
-# Sidebar branding with enhanced nutrition theme
 st.sidebar.markdown("""
 <div style="text-align: center; padding: 2rem 1rem 1.5rem 1rem; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); border-radius: 16px; margin-bottom: 1rem; border: 2px solid #243244;">
     <div style="font-size: 3rem; margin-bottom: 0.5rem; filter: drop-shadow(0 4px 8px rgba(34, 197, 94, 0.3));">🥗</div>
@@ -677,7 +675,6 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Sidebar - Navigation with modern styling
 st.sidebar.markdown("""
 <div style="padding: 0.75rem 1rem; background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); border-radius: 12px; margin-bottom: 1rem; border: 2px solid #243244;">
     <p style="margin: 0; color: #9CA3AF; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">📋 Navigation</p>
@@ -691,7 +688,6 @@ page = st.sidebar.selectbox(
 
 st.sidebar.markdown("<div style='margin: 1.5rem 0; border-top: 2px solid #243244;'></div>", unsafe_allow_html=True)
 
-# Choix du provider IA (sidebar) with enhanced design
 st.sidebar.markdown("""
 <div style="padding: 0.75rem 1rem; background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); border-radius: 12px; margin-bottom: 1rem; border: 2px solid #243244;">
     <p style="margin: 0; color: #9CA3AF; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">🤖 Modèle IA</p>
@@ -712,7 +708,6 @@ selected_provider = st.sidebar.selectbox(
     format_func=lambda x: {"openai": "🧠 OpenAI GPT", "gemini": "✨ Google Gemini", "ollama": "🏠 Ollama (local)"}[x]
 )
 
-# Afficher le modèle actif avec design moderne
 model_names = {
     "openai": "GPT-4o Mini",
     "gemini": "Gemini 2.0 Flash",
@@ -728,7 +723,6 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Initialiser / mettre à jour le chatbot si besoin
 if "chatbot" not in st.session_state or st.session_state.get("provider") != selected_provider:
     st.session_state.chatbot = NutriChatbot(provider=selected_provider)
     st.session_state.provider = selected_provider
@@ -736,7 +730,6 @@ if "chatbot" not in st.session_state or st.session_state.get("provider") != sele
 if "comparison_products" not in st.session_state:
     st.session_state.comparison_products = []
 
-# Styled Header - Hero Section
 st.markdown("""
 <div class="app-header">
     <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem;">
@@ -791,12 +784,11 @@ def clean_product_data(raw_product):
 
 # ===== PAGE 1: RECHERCHE PRODUIT =====
 if page == "🔍 Recherche Produit":
-    # Page header with modern design
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
-        <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">🔍 Rechercher un produit</h2>
-        <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">Trouvez et analysez les informations nutritionnelles de vos produits</p>
-    </div>
+<div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+    <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">🔍 Rechercher un produit</h2>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">Trouvez et analysez les informations nutritionnelles de vos produits</p>
+</div>
     """, unsafe_allow_html=True)
     
     col1, col2 = st.columns([3, 1])
@@ -824,7 +816,6 @@ if page == "🔍 Recherche Produit":
         if clean_results:
             st.success(f"✅ {len(products)} produit(s) trouvé(s)")
             
-            # Sélection du produit
             product_names = [
                 f"{p.get('name', 'Sans nom')} - {p.get('brands', 'Sans marque')}"
                 for p in clean_results
@@ -835,31 +826,23 @@ if page == "🔍 Recherche Produit":
                 selected_product = products[selected_idx]
                 product_info = api.extract_product_info(selected_product)
                 
-                # Affichage des infos produit
                 col1, col2 = st.columns([1, 2])
                 
                 with col1:
-                    # Product image card
-                    st.markdown("""
-                    <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1rem;">
-                    """, unsafe_allow_html=True)
-                    
                     if product_info["image_url"]:
                         st.image(product_info["image_url"], width=250)
                     else:
                         st.markdown("""
-                        <div style="width: 250px; height: 250px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
-                            🍽️
-                        </div>
+<div style="width: 250px; height: 250px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+    🍽️
+</div>
                         """, unsafe_allow_html=True)
                     
                     st.markdown("</div>", unsafe_allow_html=True)
                     
-                    # Metrics in styled cards
                     st.metric("🏆 Nutri-Score", product_info["nutriscore"])
                     st.metric("🔬 NOVA Group", product_info["nova_group"])
                     
-                    # CALLBACK pour ajouter au comparateur
                     def add_to_comparator():
                         """Callback exécuté AVANT le rerun"""
                         existing_codes = [p.get('code') for p in st.session_state.comparison_products]
@@ -870,47 +853,40 @@ if page == "🔍 Recherche Produit":
                         else:
                             st.session_state.last_action = "⚠️ Produit déjà dans le comparateur"
                     
-                    # Bouton avec callback
                     st.button(
                         "➕ Ajouter au comparateur", 
                         key=f"add_{product_info['code']}",
                         on_click=add_to_comparator
                     )
                     
-                    # Afficher le dernier message (persistera après rerun)
                     if "last_action" in st.session_state and st.session_state.last_action:
                         st.info(st.session_state.last_action)
-                        # Optionnel : afficher des balloons
                         if "✅" in st.session_state.last_action:
                             st.balloons()
                 
                 with col2:
-                    # Product title card
                     st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1.5rem;">
-                        <h3 style="margin: 0 0 0.5rem 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">{product_info['name']}</h3>
-                        <p style="margin: 0; color: #9CA3AF; font-size: 0.95rem;">🏷️ <strong>Marque:</strong> {product_info['brands']}</p>
-                    </div>
+<div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1.5rem;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">{product_info['name']}</h3>
+    <p style="margin: 0; color: #9CA3AF; font-size: 0.95rem;">🏷️ <strong>Marque:</strong> {product_info['brands']}</p>
+</div>
                     """, unsafe_allow_html=True)
                     
-                    # Analyse IA
                     with st.expander("🤖 Analyse IA", expanded=True):
                         with st.spinner("Génération de l'analyse..."):
                             analysis = st.session_state.chatbot.analyze_product(product_info)
                             st.markdown(analysis)
                     
-                    # Informations détaillées
                     with st.expander("📋 Informations détaillées"):
                         st.write("**Catégories:**", product_info["categories"])
                         st.write("**Allergènes:**", product_info["allergens"])
                         st.write("**Ingrédients:**", product_info["ingredients"])
                 
-                # Visualisations with styled header
                 st.markdown("""
-                <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
-                    <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Visualisations Nutritionnelles</h3>
-                    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Analyse graphique des valeurs nutritionnelles</p>
-                </div>
+<div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
+    <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Visualisations Nutritionnelles</h3>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Analyse graphique des valeurs nutritionnelles</p>
+</div>
                 """, unsafe_allow_html=True)
                 
                 col1, col2 = st.columns(2)
@@ -924,20 +900,17 @@ if page == "🔍 Recherche Produit":
                         fig_pie = create_nutriments_pie(product_info["nutriments"])
                         st.plotly_chart(fig_pie, width='stretch')
                 
-                # Alternatives with styled header
                 st.markdown("""
-                <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #F59E0B; margin: 2rem 0 1.5rem 0;">
-                    <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">🔄 Alternatives Recommandées</h3>
-                    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Découvrez des options plus saines</p>
-                </div>
+<div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #F59E0B; margin: 2rem 0 1.5rem 0;">
+    <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">🔄 Alternatives Recommandées</h3>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Découvrez des options plus saines</p>
+</div>
                 """, unsafe_allow_html=True)
                 
                 with st.spinner("🔍 Recherche d'alternatives..."):
-                    # Rechercher des produits similaires
                     category = product_info["categories"].split(",")[0] if product_info["categories"] else product_info["name"].split()[0]
                     alternatives = api.search_products(category, page_size=5)
                     
-                    # Filtrer pour garder que les meilleures
                     alternatives = [
                         api.extract_product_info(alt) for alt in alternatives
                         if alt.get("nutriscore_grade", "Z") < product_info["nutriscore"]
@@ -963,29 +936,28 @@ if page == "🔍 Recherche Produit":
 
 # ===== PAGE 2: COMPARATEUR =====
 elif page == "⚖️ Comparateur":
-    # Page header with modern design
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
-        <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">⚖️ Comparateur de produits</h2>
-        <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">Comparez les valeurs nutritionnelles pour faire les meilleurs choix</p>
-    </div>
+<div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+    <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">⚖️ Comparateur de produits</h2>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">Comparez les valeurs nutritionnelles pour faire les meilleurs choix</p>
+</div>
     """, unsafe_allow_html=True)
     
     products = st.session_state.comparison_products
 
     if len(products) == 0:
         st.markdown("""
-        <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); padding: 2rem; border-radius: 16px; border: 2px solid #38BDF8; text-align: center; margin-top: 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
-            <h3 style="margin: 0; color: #38BDF8; font-size: 1.5rem;">Aucun produit à comparer</h3>
-            <p style="margin: 1rem 0 0 0; color: #9CA3AF; font-size: 1rem;">👈 Ajoutez des produits depuis la page de recherche pour commencer</p>
-        </div>
+<div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); padding: 2rem; border-radius: 16px; border: 2px solid #38BDF8; text-align: center; margin-top: 2rem;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+    <h3 style="margin: 0; color: #38BDF8; font-size: 1.5rem;">Aucun produit à comparer</h3>
+    <p style="margin: 1rem 0 0 0; color: #9CA3AF; font-size: 1rem;">👈 Ajoutez des produits depuis la page de recherche pour commencer</p>
+</div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
-        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); padding: 1.25rem; border-radius: 12px; border: 2px solid #22C55E40; margin-bottom: 2rem; text-align: center;">
-            <p style="margin: 0; color: #22C55E; font-size: 1.2rem; font-weight: 700;">📦 {len(products)} produit(s) dans le comparateur</p>
-        </div>
+<div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); padding: 1.25rem; border-radius: 12px; border: 2px solid #22C55E40; margin-bottom: 2rem; text-align: center;">
+    <p style="margin: 0; color: #22C55E; font-size: 1.2rem; font-weight: 700;">📦 {len(products)} produit(s) dans le comparateur</p>
+</div>
         """, unsafe_allow_html=True)
         
         COLS_PER_ROW = 5
@@ -999,22 +971,27 @@ elif page == "⚖️ Comparateur":
                     product = products[idx]
                     
                     with cols[j]:
-                        st.markdown("""
-                        <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.25rem; border-radius: 16px; border: 2px solid #243244; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); margin-bottom: 1rem; height: 100%;">
+                        img_src = product["image_url"] if product["image_url"] else "https://shorturl.at/WFeZj"
+
+                        st.markdown(f"""
+<div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); 
+    padding: 1.25rem; 
+    border-radius: 16px; 
+    border: 2px solid #243244; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); 
+    margin-bottom: 1rem; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;">
+    <div style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 12px; background: #0F172A; margin-bottom: 1rem;">
+        <img src="{img_src}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+    </div>
+    <div style="width: 100%; text-align: left; margin-bottom: 0.5rem;">
+        <strong style="color: #E5E7EB; font-size: 1.1em;">{product['name'][:40]}...</strong>
+    </div>
+</div>
                         """, unsafe_allow_html=True)
-                        
-                        if product["image_url"]:
-                            st.image(product["image_url"], width='stretch') 
-                        else:
-                            st.markdown("""
-                            <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #243244 0%, #1E293B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto;">
-                                🍽️
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        st.markdown("</div>", unsafe_allow_html=True)
-                        
-                        st.markdown(f"**{product['name'][:30]}**")
                         
                         c1, c2 = st.columns(2)
                         with c1:
@@ -1027,19 +1004,18 @@ elif page == "⚖️ Comparateur":
                             st.rerun()
 
         st.markdown("""
-        <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
-            <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Comparaison Visuelle</h3>
-            <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Analyse comparative des produits</p>
-        </div>
+<div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); padding: 1rem 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin: 2rem 0 1.5rem 0;">
+    <h3 style="margin: 0; color: #E5E7EB; font-size: 1.5rem; font-weight: 700;">📊 Comparaison Visuelle</h3>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 0.9rem;">Analyse comparative des produits</p>
+</div>
         """, unsafe_allow_html=True)
         
         fig = create_comparison_chart(st.session_state.comparison_products)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         
-        # Analyse comparative IA et Bouton Vider
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🤖 Analyse comparative IA", type="primary", use_container_width=True):
+            if st.button("🤖 Analyse comparative IA", type="primary", width='stretch'):
                 with st.spinner("🧠 Génération de l'analyse..."):
                     comparison_text = "\n".join([
                         f"- {p['name']} (Nutri-Score {p['nutriscore']}, NOVA {p['nova_group']})"
@@ -1049,52 +1025,45 @@ elif page == "⚖️ Comparateur":
                     prompt = f"Compare ces produits et dis lequel est le meilleur choix nutritionnel:\n{comparison_text}"
                     analysis = st.session_state.chatbot.chat(prompt)
                     st.markdown(f"""
-                    <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, #1E293B 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin-top: 1rem;">
-                        <p style="margin: 0; color: #E5E7EB; line-height: 1.6;">{analysis}</p>
-                    </div>
+<div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, #1E293B 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #22C55E; margin-top: 1rem;">
+    <p style="margin: 0; color: #E5E7EB; line-height: 1.6;">{analysis}</p>
+</div>
                     """, unsafe_allow_html=True)
         
         with col2:
-            if st.button("🗑️ Vider le comparateur", use_container_width=True):
+            if st.button("🗑️ Vider le comparateur", width='stretch'):
                 st.session_state.comparison_products = []
                 st.rerun()
 
 # ===== PAGE 3: CHATBOT =====
 elif page == "💬 Chatbot Nutrition":
-    # Page header with modern design
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
-        <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">💬 Assistant Nutrition</h2>
-        <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">🤖 Posez vos questions sur l'alimentation et la nutrition • Obtenez des réponses personnalisées</p>
-    </div>
+<div style="background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); padding: 1.5rem; border-radius: 16px; border: 2px solid #243244; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+    <h2 style="margin: 0; color: #E5E7EB; font-size: 2rem; font-weight: 700;">💬 Assistant Nutrition</h2>
+    <p style="margin: 0.5rem 0 0 0; color: #9CA3AF; font-size: 1rem;">🤖 Posez vos questions sur l'alimentation et la nutrition • Obtenez des réponses personnalisées</p>
+</div>
     """, unsafe_allow_html=True)
     
-    # Historique de conversation
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     
-    # Zone de chat
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.write(message["content"])
     
-    # Input utilisateur
     user_input = st.chat_input("Posez votre question...")
     
     if user_input:
-        # Afficher le message utilisateur
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.write(user_input)
         
-        # Générer la réponse
         with st.chat_message("assistant"):
             with st.spinner("Réflexion..."):
                 response = st.session_state.chatbot.chat(user_input)
                 st.write(response)
                 st.session_state.chat_history.append({"role": "assistant", "content": response})
     
-    # Suggestions de questions avec design amélioré
     st.sidebar.markdown("""
     <div style="padding: 0.75rem 1rem; background: linear-gradient(135deg, #1E293B 0%, #16213A 100%); border-radius: 12px; margin-bottom: 1rem; border: 2px solid #243244;">
         <p style="margin: 0; color: #9CA3AF; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">💡 Questions suggérées</p>
@@ -1117,7 +1086,6 @@ elif page == "💬 Chatbot Nutrition":
                 st.session_state.chat_history.append({"role": "assistant", "content": response})
             st.rerun()
 
-# Footer with enhanced nutrition theme
 st.sidebar.markdown("<div style='margin: 2rem 0 1.5rem 0; border-top: 2px solid #243244;'></div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("""
@@ -1131,7 +1099,6 @@ st.sidebar.markdown("""
             <p style="margin: 0; color: #E5E7EB; font-size: 0.85rem; font-weight: 500;">🔬 ANSES (Ciqual)</p>
         </div>
     </div>
-    
     <div style="padding-top: 1rem; border-top: 1px solid #243244;">
         <p style="margin: 0 0 0.75rem 0; color: #9CA3AF; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">🤖 Intelligence Artificielle</p>
         <div style="background: rgba(56, 189, 248, 0.05); padding: 0.75rem; border-radius: 8px; border-left: 3px solid #38BDF8;">
