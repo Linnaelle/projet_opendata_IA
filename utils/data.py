@@ -55,6 +55,22 @@ class OpenFoodFactsAPI:
         
         nutriscore = str(raw_ns).upper() if raw_ns else "N/A"
 
+        raw_ingredients = product.get("ingredients", [])
+
+        if isinstance(raw_ingredients, list):
+            ingredients_list = []
+            for item in raw_ingredients:
+                if isinstance(item, dict):
+                    name = item.get("text")
+                    if name:
+                        ingredients_list.append(name)
+                elif isinstance(item, str):
+                    ingredients_list.append(item)
+            
+            final_ingredients = ", ".join(ingredients_list)
+        else:
+            final_ingredients = str(raw_ingredients) if raw_ingredients else "Non spécifié"
+
         return {
             "code": product.get("code", ""),
             "product_name": product.get("product_name") or "Nom inconnu",
@@ -62,7 +78,7 @@ class OpenFoodFactsAPI:
             "nutriscore_grade": nutriscore,
             "nova_group": product.get("nova_group") or "N/A",
             "image_url": product.get("image_url", ""),
-            "ingredients": str(product.get("ingredients", "")),
+            "ingredients": final_ingredients,
             "allergens": product.get("allergens") or "Aucun ou non spécifié",
             "nutriments": product.get("nutriments", {}),
             "categories": product.get("categories", ""),
